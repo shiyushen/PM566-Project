@@ -1,6 +1,6 @@
 ---
 title: "Midterm"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -26,3 +26,11 @@ plot(pressure)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+I will use this as mistermd sdochosudcc'lskc
+
+
+Q1 
+q2
+
