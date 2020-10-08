@@ -32,4 +32,6 @@ You can also embed plots, for example:
 Note that the `echo = FALSE` parameter was added to the code chunk to
 prevent printing of the R code that generated the plot.
 
-I will use this as misterm
+I will use this as mistermd sdochosudcc’lskc
+
+Q1 q2
