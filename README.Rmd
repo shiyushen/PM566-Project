@@ -1,6 +1,8 @@
 ---
 title: "Midterm-Report"
-output: github_document
+output: 
+- github_document
+- html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -274,3 +276,4 @@ irology-and-prevention
 https://medium.com/microbial-instincts/the-latest-theory-that-may-answer-the-origin-of-covid-19-d9efbe7072ae
 
 
+View [here](https://ghcdn.rawgit.org/shiyushen/PM566-Project/master/Midterm.html)
