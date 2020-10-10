@@ -1,5 +1,5 @@
 ---
-title: "Midterm"
+title: "Midterm-Report"
 output: github_document
 ---
 
@@ -7,30 +7,270 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## 1 Introduction
+### 1.1 Backgroud
+  When talking about 2020, "COVID-19", a novel coronavirus firstly found in Wuhan, China, in the end of 2019 (Mclntosh, 2020), must be the most popular word that appears on the Internet, newspapers and daily conversations. Since COVID-19 has been discovered and claimed as human pandemic by Chinese government, there are more than 36 millions of people being confirmed with COVID-19 and about 1 million deaths by now (2020). COVID-19 is definitely raising a huge concern of public health around the world. 
+ 
+### 1.2 Problem Statement
+  There are many opinions about the origin of COVID-19. Some suggests that the sequence of COVID-19 is similar to bat virus (Shin, 2020), while others do not support that idea. There are also many unclear characteristics about this new virus. Therefore, this report will mainly focus on discovering main and critical characteristics of COVID-19, including incubation period, COVID-19 distribution of age, gender.
+  
+### 1.3 Data Discription
+  This data is obtained from Kaggle: Novel Corona Virus 2019 Data set. These COVID-19 case data are collected from 20th January to 28th February, 2020, which is the early pandemic period of COVID-19. This data set consists of 10 qualitative attributes, 7 quantitative attributes and 3 other attributes (Table1.1). 
+  
+```{r, echo = FALSE }
+library(knitr)
+library(data.table)
+library(kableExtra)
+table1=data.table(
+  matrix(c(
+    "id","case_in_county","reporting date","summary","location",
+    "country","gender","age","sympton_onset","if_onset_approximated",
+    "hosp_visit_date","exposure_start","exposure_end","visiting Wuhan",
+    "from Wuhan","death",
+    "recovered","symptom","source","link",
+    "Patient ID","Number of case in county","Case reporting date",
+    "Patient summary discription","Location",
+    "Country","Gender","Age","Sympton onset date",
+    "Whether symptom onset is approximated", "hospotal visiting date",
+    "Exposure start date","Exposure end date",
+    "Whether the patient visted Wuhan", "Whether the patient is from Wuhan",
+    "Whether the patient died", "Whether the patient recovered","Symptom",
+    "Source of the patient's information"," Source link"),nrow=20,byrow=F))
+kable(table1,caption = "Table1.1 Description of COVID-19 data set",col.names = c('Variable Name', 'Discription'))
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
 ```
 
-## Including Plots
+   
+## 2 Methodology
+  The data set that is used in this report is downloaded from a Kaggle page. It offers day-level information and data set on COVID-19 affected cases. First, basic statistics of variables will be computed. Second, basic plots, for instance, box plot, line plot and histograms will be drawn to give ideas of how each variables are distributed. Then, missing value will be evaluated and necessary substitution or deletion of missing value will be used for each variables. Specifically, the following method will be used to deal with specific variable: 
+  
+1. If a row has all NA in most of the columns, it will be deleted; 
 
-You can also embed plots, for example:
+2. Missing values in "location", "gender" and "country" will not be imputed; 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+3. Missing values in "age" will be generated using the mean of "age";
+
+4. Missing values in "hosp visit date" will be imputed by it's "reporting date"; 
+
+5. Missing value in "symptom onset date" will be imputed by the average of the difference between "symptom onset data" and "hosp visit date"; 
+
+6. Missing value in "exposure start data" will be imputed by the average of the difference between "exposure start data" and "symptom onset date"; 
+
+7. Missing value in "exposure end data" will be imputed by "hosp visit data". 
+
+8. Missing value in "symptoms" will be imputed by the most frequent symptoms. 
+  
+  In the later steps, time-series plot of COVID-19 cases will be drawn to see how the case number increases by time. Age-specific, gender-specific, country-specific confirm rate will be compared.  
+
+## 3 Results
+  In the beginning, 3 descriptive variables "summary", "source" and "link" will be excluded and the main data set will have 17 variables and 1085 observations.The following table listed some descriptive statistics about main variables in COVID-19 data set. 
+  
+```{r, echo=FALSE, results='hide'}
+covid <- fread("/Users/sherryshen/Desktop/COVID19-data.csv")
+covid <- covid[,-c(4,19,20)] #remove 3 descriptive variables
+dim(covid) #check dimension
+
+table(covid$gender)
+table(covid$country)
+summary(covid$age)
+table(covid$If_onset_approximated)
+table(covid$`visiting Wuhan`)
+table(covid$`from Wuhan`)
+table(covid$death)
+table(covid$recovered)
+table(covid$symptom)
+
+
+sum(is.na(covid[,1]))
+sum(is.na(covid[,2]))
+sum(is.na(covid[,3]))
+sum(is.na(covid[,4]))
+sum(is.na(covid[,5]))
+sum(is.na(covid[,6]))
+sum(is.na(covid[,7]))
+sum(is.na(covid[,8]))
+sum(is.na(covid[,9]))
+sum(is.na(covid[,10]))
+sum(is.na(covid[,11]))
+sum(is.na(covid[,12]))
+sum(is.na(covid[,13]))
+sum(is.na(covid[,14]))
+sum(is.na(covid[,15]))
+sum(is.na(covid[,16]))
+sum(is.na(covid[,17]))
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r, echo=FALSE}
+table2=data.table(
+  matrix(c(
+    "country","gender","age",
+    "if_onset_approximated","visiting Wuhan",
+    "from Wuhan","death","recovered","symptom",
+    "38 countries","F/M=382/520","Min:25 Max:96 Mean:49.48",
+    "Yes:24 No:536","Yes:192 No 893","Yes:156 No:925",
+    "Yes:63, No:1022","Yes:159 No:926","",183,242,222,
+    577,"",4,"","",815 ),nrow=9,byrow=F))
+
+kable(table2,caption = "Table3.1 Descriptive statistics of main variables in COVID-19 data set",col.names = c('Variable Name','Obs/frequency','#NA'))
+```
+
+  In order to avoid problems when analyzing sparse data set, different methods of imputing missing values were used to deal with variables individually.
+  
+
+```{r, echo=FALSE, message=FALSE ,results='hide'}
+#1
+which(is.na(covid$`reporting date`))
+covid[which(is.na(covid$`reporting date`)),] #all other attribute are NA
+new = covid[-262,] #delete it
+
+sum(is.na(new$`reporting date`))
+
+#3
+mean_age = round(mean(covid$age,na.rm=T))
+new[, age2 :=age]
+
+for (i in 1:1084) {
+  if (is.na(new$age[i]==T)){new$age2[i]=mean_age}
+  else {new$age2[i]=new$age[i]}
+}
+
+sum(is.na(new$age2)) #check if there are NA
+
+#4 Missing values in "hosp visit date" will be imputed by it's "reporting date"; 
+new[,c(3,8,10,11,12)]<-lapply(new[,c(3,8,10,11,12)],as.Date)
+
+new$hosp_visit_date[is.na(new$hosp_visit_date)] <- 
+       new$`reporting date`[is.na(new$hosp_visit_date)]
+
+sum(is.na(new$hosp_visit_date))
+
+#5 hosp-symonset
+
+library(lubridate)
+library(zoo)
+
+new1=new[-(which(is.na(new$symptom_onset))),]
+dim(new1)
+hos_sym_diff=days(rep(0,563))
+hos_sym_diff=as.Date(new1$hosp_visit_date)-as.Date(new1$symptom_onset)
+mean_diff1=round(mean(hos_sym_diff)) #mean diff is 4 
+new$symptom_onset[is.na(new$symptom_onset)] <- 
+       as.Date(new$hosp_visit_date[is.na(new$symptom_onset)])+days(4)
+
+sum(is.na(new$symptom_onset))
 
 
-I will use this as mistermd sdochosudcc'lskc
+#6 Missing value in "exposure start data" will be imputed by the average of the difference between "exposure start data" and "symptom onset date"; 
+
+new2=new[-(which(is.na(new$exposure_start))),]
+dim(new2)
+sym_exps_diff=days(rep(0,128))
+sym_exps_diff=as.Date(new2$symptom_onset)-as.Date(new2$exposure_start)
+mean_diff2=round(mean(sym_exps_diff)) #mean diff is 12
+new$exposure_start[is.na(new$exposure_start)] <- 
+       as.Date(new$symptom_onset[is.na(new$exposure_start)])-days(12)
+
+sum(is.na(new$exposure_start))
 
 
-Q1 
-q2
+#7 Missing value in "exposure end data" will be imputed by "hosp visit data".
+
+new$exposure_end[is.na(new$exposure_end)] <- 
+       as.Date(new$hosp_visit_date[is.na(new$exposure_end)])
+
+sum(is.na(new$exposure_end))
+
+
+#8 Missing value in "symptoms" will be imputed by the most frequent symptoms. 
+library(stringr)
+
+sum(str_count(new$symptom[is.na(new$symptom)==F], pattern = "fever"))
+sum(str_count(new$symptom[is.na(new$symptom)==F], pattern = "cough"))
+sum(str_count(new$symptom[is.na(new$symptom)==F], pattern = "throat pain"))
+sum(str_count(new$symptom[is.na(new$symptom)==F], pattern = "difficult in breathing"))
+sum(str_count(new$symptom[is.na(new$symptom)==F], pattern = "chills"))
+sum(str_count(new$symptom[is.na(new$symptom)==F], pattern = "joint pain"))
+sum(str_count(new$symptom[is.na(new$symptom)==F], pattern = "runny nose"))
+sum(str_count(new$symptom[is.na(new$symptom)==F], pattern = "abdominal pain"))
+sum(str_count(new$symptom[is.na(new$symptom)==F], pattern = "diarrhea"))
+sum(str_count(new$symptom[is.na(new$symptom)==F], pattern = "loss of appetite"))
+sum(str_count(new$symptom[is.na(new$symptom)==F], pattern = "malaise"))
+sum(str_count(new$symptom[is.na(new$symptom)==F], pattern = "pneumonia"))
+sum(str_count(new$symptom[is.na(new$symptom)==F], pattern = "headache"))
+
+new$symptom[is.na(new$symptom)] <- c("fever")
+sum(is.na(new$symptom))
+
+```
+
+1. When checking the missing values in "reporting data", we found that 262 row has all other attributes equal to "NA". Thus the 262th row is deleted.
+
+2. The mean of age is around 49 (Fig3.2). Thus 49 is used for imputing the missing values in "age" . 
+
+
+```{r, echo=FALSE, message=FALSE, fig.height = 4, fig.width = 4}
+library(ggplot2)
+library(tidyverse)
+covid %>%
+  filter(!(age %in% NA)) %>% #remove NA 
+  ggplot()+
+  geom_boxplot(mapping = aes(y=age, fill="red"),show.legend = F)+
+  labs(titles="Fig3.1 Boxplot of 'age' with NA", y="age")
+  
+
+```
+
+
+3. The mean difference between hospital visiting date and symptom onset date is 4 (Fig3.3). Then, the missing value in "symptom_onset" is substitute by "hosp_visit_date" plus 4 days. 
+
+```{r, echo=FALSE, message=FALSE, fig.height = 4, fig.width = 4 }
+ggplot()+
+geom_boxplot(mapping = aes(y=hos_sym_diff),show.legend = F)+
+labs(titles="Fig3.2 Boxpllot of Day difference between symptom onset and hospital visit", y="Day difference")
+```
+
+
+
+4. The mean difference between exposure start date and symptom onset date is 12 (Fig3.3). Then, the missing values in "exposure start" are imputed by "symptom onset" minus 12 days.
+
+```{r, echo=FALSE, message=FALSE, fig.height = 4, fig.width = 4 }
+ggplot()+
+geom_boxplot(mapping = aes(y=sym_exps_diff),show.legend = F)+
+labs(titles="Fig3.3 Boxpllot of Day difference between symptom onset and exposure start", y="Day difference")
+```
+
+
+5. By computing the frequency for the main symptoms, it is easy to find that "fever" is the most common symptom that shows among COVID-19 cases (Table3). Thus, the missing values in "symptom" are imputed by "fever".
+
+
+6. The difference in numbers infected cases between male and female can be seen in Fig3.5. We can see that there are more males than females who are confirmed with COVID-19. 
+
+```{r , echo=FALSE, message=FALSE, results='hide', fig.height = 4, fig.width = 4}
+table(covid$gender)
+df <- data.frame (
+  values=c(382,520),
+  lbls=c("female","male")
+)
+
+ggplot(df, aes(x="",y=values,fill=lbls))+
+  geom_bar(width=1, stat ="identity")+
+  coord_polar("y",start=0)+
+  labs(titles = "Fig.3.5 Pie chart of number of confirmed case by gender")
+```
+
+
+
+## Conclusion
+
+  First, by computing the mean age of patient, we can see that most of the confirmed cases are around 49 years old, which can be explained by the reason that older people tend to be more infected by virus. Then, we found that the difference between the date of exposure and date of symptom onset is around 14 days. This results is consistent with the claimed incubation period of COVID-19. Third, fever is the most frequent symptom that shows up on the confirmed cases. It is why fever is concerned as official symptom of COVID-19. Even though there are difference in confirm numbers between gender, the there is not enough evidence show that the infected rate is difference between Male and Female. However, this COVID-19 data is only collected in the early period of the pandemic, which is not enough to draw conclusion outside this data set. Thus, more statistical tests should be done and a updated data set is required in future steps. 
+   
+
+## Reference
+https://www.uptodate.com/contents/coronavirus-disease-2019-covid-19-epidemiology-v
+
+irology-and-prevention
+
+https://medium.com/microbial-instincts/the-latest-theory-that-may-answer-the-origin-of-covid-19-d9efbe7072ae
+
 
